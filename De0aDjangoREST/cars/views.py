@@ -1,4 +1,5 @@
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
+from rest_framework.generics import (CreateAPIView, ListAPIView,
+                                     RetrieveAPIView, UpdateAPIView)
 
 from .models import Brand
 from .serializers import BrandSerializer
@@ -16,6 +17,13 @@ class BrandCreateView(CreateAPIView):
 
 
 class BrandRetrieveView(RetrieveAPIView):
+    serializer_class = BrandSerializer
+    permission_classes = ()
+    queryset = Brand.objects.all()
+    lookup_field = 'id'
+
+
+class BrandUpdateView(UpdateAPIView):
     serializer_class = BrandSerializer
     permission_classes = ()
     queryset = Brand.objects.all()
