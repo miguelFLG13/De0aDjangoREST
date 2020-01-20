@@ -31,7 +31,6 @@ class BrandUpdateView(UpdateAPIView):
 
 
 class BrandDestroyView(DestroyAPIView):
-    serializer_class = BrandSerializer
     permission_classes = ()
     queryset = Brand.objects.all()
     lookup_field = 'id'
