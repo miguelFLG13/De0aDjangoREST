@@ -26,6 +26,7 @@ class Car(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     model = models.CharField(max_length=25)
+    manufacturing_date = models.DateField()
     brand = models.ForeignKey(
         'Brand',
         related_name='cars',
@@ -33,7 +34,7 @@ class Car(models.Model):
     )
 
     class Meta:
-        ordering = ['brand']
+        ordering = ['updated']
         indexes = [
             models.Index(fields=['brand'])
         ]
