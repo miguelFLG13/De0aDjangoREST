@@ -57,7 +57,7 @@ Autor Miguel Jiménez - www.migueljimenezgarcia.com
     
     
     urlpatterns = [
-        path('v1/cars/', include(cars.urls'))
+        path('v1/cars/', include('cars.urls'))
     ]</code></pre>
 
  4. Crear `cars/urls.py` y añadir:
