@@ -51,7 +51,7 @@ Autor Miguel Jiménez - www.migueljimenezgarcia.com
 
  3. Abrir `De0aDjangoREST/urls.py`, borrarlo e introducir:
 
-    <pre><code>from rest_framework imports, viewsets
+    <pre><code>from rest_framework import viewsets
     
     from django.conf.urls import url, include
     
