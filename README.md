@@ -96,7 +96,7 @@ Autor Miguel Jiménez - www.migueljimenezgarcia.com
     class BrandSerializer(serializers.ModelSerializer): 
         class Meta:
             model = Brand
-            fields = ('id', 'name’, )</code></pre>
+            fields = ('id', 'name', )</code></pre>
 
  2. Definimos la Vista en `cars/views.py`
  
