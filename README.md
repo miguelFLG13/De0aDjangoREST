@@ -51,14 +51,13 @@ Autor Miguel Jiménez - www.migueljimenezgarcia.com
 
  3. Abrir `De0aDjangoREST/urls.py`, borrarlo e introducir:
 
-    <pre><code>from rest_framework import viewsets
-    
-    from django.conf.urls import url, include
-    
-    
-    urlpatterns = [
-        path('v1/cars/', include('cars.urls'))
-    ]</code></pre>
+    <pre><code>from django.urls import path
+from django.conf.urls import include
+
+
+urlpatterns = [
+        path('v1/cars/', include(cars.urls'))
+]</code></pre>
 
  4. Crear `cars/urls.py` y añadir:
 
