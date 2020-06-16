@@ -7,7 +7,7 @@ Autor Miguel Jiménez - www.migueljimenezgarcia.com
 
 ## Step 1 (Inicialización)
 
- 1. Crear Entorno virtual con  `virtualenv De0aDjangoREST` en la terminal
+ 1. Crear Entorno virtual con  `virtualenv .` en la terminal
  
  2. Entrar en la carpeta De0aDjangoREST
  
