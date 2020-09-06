@@ -19,4 +19,5 @@ from django.conf.urls import include
 
 urlpatterns = [
     path('v1/cars/', include('cars.urls')),
+    path('v1/o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 ]
