@@ -1,9 +1,9 @@
 from rest_framework import generics
 from rest_framework import filters as df
 
-from .models import Brand
+from .models import Brand, Car
 from .paginations import SmallResultsSetPagination
-from .serializers import BrandSerializer
+from .serializers import BrandSerializer, CarSerializer
 
 
 class BrandListView(generics.ListAPIView):
@@ -40,3 +40,21 @@ class BrandDestroyView(generics.DestroyAPIView):
     permission_classes = ()
     queryset = Brand.objects.all()
     lookup_field = 'id'
+
+
+class CarListCreateView(generics.ListCreateAPIView):
+    serializer_class = CarSerializer
+    permission_classes = ()
+    queryset = Car.objects.all()
+    pagination_class = SmallResultsSetPagination
+    filter_backends = (df.OrderingFilter, df.SearchFilter, )
+    search_fields = ('model', )
+    ordering_fields = ('model', )
+
+
+class CarRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = CarSerializer
+    permission_classes = ()
+    queryset = Car.objects.all()
+    lookup_field = 'id'
+
