@@ -1,5 +1,6 @@
 from rest_framework import generics
 from rest_framework import filters as df
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Brand, Car
 from .paginations import SmallResultsSetPagination
@@ -18,33 +19,33 @@ class BrandListView(generics.ListAPIView):
 
 class BrandCreateView(generics.CreateAPIView):
     serializer_class = BrandSerializer
-    permission_classes = ()
+    permission_classes = (IsAuthenticated, )
 
 
 class BrandRetrieveView(generics.RetrieveAPIView):
     serializer_class = BrandSerializer
-    permission_classes = ()
+    permission_classes = (IsAuthenticated, )
     queryset = Brand.objects.all()
     lookup_field = 'id'
 
 
 class BrandUpdateView(generics.UpdateAPIView):
     serializer_class = BrandSerializer
-    permission_classes = ()
+    permission_classes = (IsAuthenticated, )
     queryset = Brand.objects.all()
     lookup_field = 'id'
 
 
 class BrandDestroyView(generics.DestroyAPIView):
     serializer_class = BrandSerializer
-    permission_classes = ()
+    permission_classes = (IsAuthenticated, )
     queryset = Brand.objects.all()
     lookup_field = 'id'
 
 
 class CarListCreateView(generics.ListCreateAPIView):
     serializer_class = CarSerializer
-    permission_classes = ()
+    permission_classes = (IsAuthenticated, )
     queryset = Car.objects.all()
     pagination_class = SmallResultsSetPagination
     filter_backends = (df.OrderingFilter, df.SearchFilter, )
@@ -54,7 +55,7 @@ class CarListCreateView(generics.ListCreateAPIView):
 
 class CarRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CarSerializer
-    permission_classes = ()
+    permission_classes = (IsAuthenticated, )
     queryset = Car.objects.all()
     lookup_field = 'id'
 
