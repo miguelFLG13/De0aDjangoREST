@@ -226,3 +226,315 @@ Autor Miguel Jiménez - www.migueljimenezgarcia.com
     ]</code></pre>
 
  3. Usar postman para lanzar un DELETE al endpoint [http://127.0.0.1:8000/v1/cars/brands/3/delete/](http://127.0.0.1:8000/v1/cars/brands/3/delete/)
+ 
+ 
+## Step 11 (Más sobre Modelos)
+
+ 1. Definimos un nuevo modelo con más fantasía en `cars/models.py`:
+ 
+    <pre><code>class Car(models.Model):
+        created = models.DateTimeField(auto_now_add=True)
+        updated = models.DateTimeField(auto_now=True)
+        model = models.CharField(max_length=25)
+        manufacturing_date = models.DateField()
+        brand = models.ForeignKey(
+            'Brand',
+            related_name='cars',
+            on_delete=models.CASCADE
+        )
+    </code></pre>
+
+ 2. Y le añadimos el orden y el índice:
+
+     <pre><code>class Car(models.Model):
+     ...
+        class Meta:
+            ordering = ['updated']
+            indexes = [models.Index(fields=['brand'])]</code></pre>
+     
+
+ 3. Ejecutamos en la terminal
+
+     <pre><code>python manage.py makemigrations
+    python manage.py migrate</code></pre>
+
+
+## Step 12 (Mejorando Serializadores)
+
+ 1. Modificamos el serializador en `cars/serializers.py`:
+
+    <pre><code>from rest_framework import serializers
+     ...
+    class BrandSerializer(serializers.ModelSerializer):
+        total_cars = serializers.SerializerMethodField()
+        
+        class Meta:
+            model = Brand
+            fields = ('id', 'name', 'total_cars', )
+            read_only_fields = ('id', )
+    
+    def get_total_cars(self, obj):
+        return obj.cars.count()</code></pre>
+
+ 2. Añadimos un nuevo serializador en `cars/serializers.py`:
+
+     <pre><code>class CarSerializer(serializers.ModelSerializer):
+     
+        class Meta:
+            model = Car
+            fields = ('id', 'model', 'brand', 'manufacturing_date', )
+            read_only_fields = ('id', )
+            extra_kwargs = {
+                'manufacturing_date': {'write_only': True},
+            }</code></pre>
+
+## Step 13 (Paginación)
+
+ 1.Creamos un archivo `cars/paginations.py`:
+
+     from .paginations import SmallResultsSetPagination
+     ...
+     class SmallResultsSetPagination(PageNumberPagination):
+         page_size = 10
+         page_query_param = 'page'
+         
+ 2. Abrimos `cars/views.py` y modificamos `BrandListView`:
+
+     <pre><code>from .paginations import SmallResultsSetPagination
+    ...
+    class BrandListView(ListAPIView):
+        serializer_class = BrandSerializer
+        permission_classes = ()
+        queryset = Brand.objects.all()
+        pagination_class = SmallResultsSetPagination</code></pre>
+
+ 3. Lo probamos en postman haciendo un GET como http://127.0.0.1:8000/v1/cars/brands/?page=< page-num >, siendo < page-num > el número de la página, quedando para pedir la primera: http://127.0.0.1:8000/v1/cars/brands/?page=1
+
+## Step 14 (Filtros y Orden)
+
+ 1. Abrimos `cars/views.py` y modificamos `BrandListView` para introducir los filtros:
+
+     <pre><code>from rest_framework.filters import OrderingFilter, SearchFilter
+     ...
+         class BrandListView(generics.ListAPIView):
+             serializer_class = BrandSerializer
+            permission_classes = ()
+            queryset = Brand.objects.all()
+            pagination_class = SmallResultsSetPagination
+            filter_backends = (SearchFilter, )
+            search_fields = ('name', )</code></pre>
+
+ 2. Seguimos modificando `BrandListView`:
+
+     <pre><code>class BrandListView(generics.ListAPIView):
+        serializer_class = BrandSerializer
+        permission_classes = ()
+        queryset = Brand.objects.all()
+        pagination_class = SmallResultsSetPagination
+        filter_backends = (OrderingFilter, SearchFilter, )
+        search_fields = ('name', )
+        ordering_fields = ('name', )</code></pre>
+
+ 3. Lo probamos en postman haciendo un GET de: http://127.0.0.1:8000/v1/cars/brands/?search=< str-search > , siendo < str-search > la cadena por la que se quiere buscar, quedando por ejemplo: http://127.0.0.1:8000/v1/cars/brands/?page=olks
+
+ 4. Y combinandolo: http://127.0.0.1:8000/v1/cars/brands/?page=1&search=olks
+
+## Step 15 (Vistas Conjuntas)
+
+  ### Obtener y Crear Recursos (GET y POST)
+
+   1. En `cars/views.py` introducimos:
+
+    from .models import Brand, Car
+    ...
+    from .serializers import BrandSerializer, CarSerializer
+    ...
+    class CarListCreateView(generics.ListCreateAPIView):
+        serializer_class = CarSerializer
+        permission_classes = ()
+        queryset = Car.objects.all()
+        pagination_class = SmallResultsSetPagination
+        filter_backends = (df.OrderingFilter, df.SearchFilter, )
+        search_fields = ('model', )
+        ordering_fields = ('model', )
+
+   2. Y en `cars/urls.py` introducimos:
+ 
+     from . import views
+	 urlpatterns = [
+        ...
+        path('cars/', views.CarListCreateView.as_view(), name='cars'),
+    ]
+
+   3. Y lo probamos haciendo GET y POST de: http://127.0.0.1:8000/v1/cars/cars/
+
+  ### Obtener, Editar, Eliminar un Recurso (GET, PUT/PATCH y DELETE)
+
+   1. En `cars/views.py` introducimos:
+
+    class CarRetrieveUpdateDestroyView(generics.RetrieveAPIView):
+        serializer_class = CarSerializer
+        permission_classes = ()
+        queryset = Car.objects.all()
+        lookup_field = 'id'
+
+   2. Y en `cars/urls.py` introducimos:
+
+    urlpatterns = [
+        ...
+        path('cars/<int:id>/', views.CarRetrieveUpdateDestroyView.as_view(), name='car'),
+    ]
+
+
+   3. Y lo probamos haciendo GET, PATCH y DELETE de: http://127.0.0.1:8000/v1/cars/cars/< id >/ , siendo id por ejemplo 1
+
+
+## Step 16 (Permisos)
+
+ 1. Entramos en `cars/views.py`:
+
+     <pre><code>from rest_framework.permissions import IsAuthenticated
+     
+    class BrandCreateView(generics.CreateAPIView):
+        ...
+        permission_classes = (IsAuthenticated, )
+        ...</code></pre>
+
+
+
+## Step 17 (Oauth2)
+
+Recordad que hay que tener el virtualenv activo: `source bin/activate`
+
+ 1. Abrimos requirements.pip que está en la carpeta principal e incluimos:
+
+     <pre><code>django-oauth-toolkit==1.3.2</code></pre>
+
+ 2. Y volvemos a instalar los módulos introduciendo en la terminal:
+
+     <pre><code>pip install -r requirements.pip</code></pre>
+
+ 3. Abrimos De0aDjangoREST/settings.py y cambiamos:
+
+     <pre><code>INSTALLED_APPS = [
+        'django.contrib.admin',
+        ...
+        'rest_framework',
+        'cars',
+        'oauth2_provider',
+    ] </code></pre>
+
+ 4. Abrimos De0aDjangoREST/settings.py y cambiamos:
+
+
+     <pre><code>REST_FRAMEWORK = {
+        ...
+        'DEFAULT_AUTHENTICATION_CLASSES': (
+            'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        ),
+        'DEFAULT_PERMISSION_CLASSES': (
+            'rest_framework.permissions.IsAuthenticated',
+        )
+    }
+    ...
+    OAUTH2_PROVIDER = {
+        'SCOPES': {'read': 'Read scope', 'write': 'Write scope'}
+    }</code></pre>
+
+ 5. Abrimos De0aDjangoREST/urls.py y cambiamos:
+
+     <pre><code>from django.conf.urls import include
+     
+    urlpatterns = [
+         ...
+        path('v1/o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+    ]</code></pre>
+
+ 6. Corremos las nuevas migraciones para usar oauth2 ejecutando en la terminal:
+
+     <pre><code>python manage.py migrate</code></pre>
+
+ 7. Abrimos la shell de django (Recordad que hay que tener el virtualenv activo: `source bin/activate`):
+
+     <pre><code>python manage.py shell</code></pre>
+
+
+8. Introducimos en la shell de Django:
+
+     <pre><code>from oauth2_provider.models import get_application_model
+     Application = get_application_model()
+     Application.objects.create(
+        name="Application",
+        client_type=Application.CLIENT_CONFIDENTIAL,
+        authorization_grant_type=Application.GRANT_PASSWORD,
+    )
+    vars(Application.objects.first())
+    quit()</code></pre>
+
+Y copiamos el client id y el secret id
+
+9. Creamos un superuser:
+
+     <pre><code>python manage.py createsuperuser</code></pre>
+
+10. Obtenemos el token desde postman o haciendo: 
+
+<pre><code>curl -X POST -d "grant_type=password&username=< user_name >&password=< password >" -u"< client_id >:< client_secret >" http://localhost:8000/v1/o/token/</code></pre>
+   Sustituyendo los campose entre <> por los datos correspondientes.
+
+12. A partir de aquí, para validar el usuario habra que meter una cabecera en las peticiones con el token que nos devuelve.
+
+`Authorization: Bearer <your_access_token>`
+
+Más info: https://django-oauth-toolkit.readthedocs.io/en/latest/rest-framework/getting_started.html
+
+
+## Step 18 (Testing)
+
+Recordad que hay que tener el virtualenv activo: `source bin/activate`
+
+ 1. Abrimos requirements.pip que está en la carpeta principal e incluimos:
+
+     <pre><code>model_bakery==1.1.1</code></pre>
+
+2. Y volvemos a instalar los módulos ejecutando en la terminal:
+
+     <pre><code>pip install -r requirements.pip</code></pre>
+
+ 3. Abrimos `cars/test.py`
+
+     <pre><code>from model_bakery import baker
+    from rest_framework import status
+    from rest_framework.test import APITestCase
+     
+    from django.urls import reverse
+     
+     
+    class GetBrandsTest(APITestCase):
+    """ Test module for GET brands """ 
+        def setUp(self):
+            self.brands = []
+            self.brands.append(baker.make('cars.Brand', name='a'))
+            self.brands.append(baker.make('cars.Brand', name='b'))
+            self.brands_counter = len(self.brands)
+            self.url = reverse('brands')
+            
+        def test_get_brands_valid(self):
+            response = self.client.get(self.url)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(response.data['results']), self.brands_counter)
+            self.assertEqual(response.data['results'][0]['id'], self.brands[0].id)
+            self.assertEqual(response.data['results'][1]['id'], self.brands[1].id) </code></pre>
+
+4. Ejecuta los tests en la terminal:
+
+     <pre><code>python manage.py test</code></pre>
+
+
+No todo en la vida es tan fácil como en este workshop, para seguir aprendiendo: https://www.django-rest-framework.org/api-guide/generic-views/
+
+Y algo más de testing:
+
+- https://docs.djangoproject.com/en/3.1/topics/testing/
+- https://www.django-rest-framework.org/api-guide/testing/
+- https://model-bakery.readthedocs.io/
