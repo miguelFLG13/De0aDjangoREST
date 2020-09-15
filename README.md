@@ -273,12 +273,15 @@ Autor Miguel Jiménez - www.migueljimenezgarcia.com
             fields = ('id', 'name', 'total_cars', )
             read_only_fields = ('id', )
     
-    def get_total_cars(self, obj):
-        return obj.cars.count()</code></pre>
+        def get_total_cars(self, obj):
+            return obj.cars.count()</code></pre>
 
  2. Añadimos un nuevo serializador en `cars/serializers.py`:
-
-     <pre><code>class CarSerializer(serializers.ModelSerializer):
+ 
+     <pre><code>...
+    from .models import Brand, Car
+    ...
+    class CarSerializer(serializers.ModelSerializer):
      
         class Meta:
             model = Car
@@ -292,11 +295,11 @@ Autor Miguel Jiménez - www.migueljimenezgarcia.com
 
  1.Creamos un archivo `cars/paginations.py`:
 
-     from .paginations import SmallResultsSetPagination
-     ...
-     class SmallResultsSetPagination(PageNumberPagination):
-         page_size = 10
-         page_query_param = 'page'
+    from rest_framework.pagination import PageNumberPagination
+     
+    class SmallResultsSetPagination(PageNumberPagination):
+        page_size = 10
+        page_query_param = 'page'
          
  2. Abrimos `cars/views.py` y modificamos `BrandListView`:
 
@@ -314,15 +317,16 @@ Autor Miguel Jiménez - www.migueljimenezgarcia.com
 
  1. Abrimos `cars/views.py` y modificamos `BrandListView` para introducir los filtros:
 
-     <pre><code>from rest_framework.filters import OrderingFilter, SearchFilter
+     <pre><code>from rest_framework import generics
+     from rest_framework import filters as df
      ...
-         class BrandListView(generics.ListAPIView):
-             serializer_class = BrandSerializer
-            permission_classes = ()
-            queryset = Brand.objects.all()
-            pagination_class = SmallResultsSetPagination
-            filter_backends = (SearchFilter, )
-            search_fields = ('name', )</code></pre>
+     class BrandListView(generics.ListAPIView):
+        serializer_class = BrandSerializer
+        permission_classes = ()
+        queryset = Brand.objects.all()
+        pagination_class = SmallResultsSetPagination
+        filter_backends = (df.SearchFilter, )
+        search_fields = ('name', )</code></pre>
 
  2. Seguimos modificando `BrandListView`:
 
@@ -331,11 +335,11 @@ Autor Miguel Jiménez - www.migueljimenezgarcia.com
         permission_classes = ()
         queryset = Brand.objects.all()
         pagination_class = SmallResultsSetPagination
-        filter_backends = (OrderingFilter, SearchFilter, )
+        filter_backends = (df.OrderingFilter, df.SearchFilter, )
         search_fields = ('name', )
         ordering_fields = ('name', )</code></pre>
 
- 3. Lo probamos en postman haciendo un GET de: http://127.0.0.1:8000/v1/cars/brands/?search=< str-search > , siendo < str-search > la cadena por la que se quiere buscar, quedando por ejemplo: http://127.0.0.1:8000/v1/cars/brands/?page=olks
+ 3. Lo probamos en postman haciendo un GET de: http://127.0.0.1:8000/v1/cars/brands/?search=< str-search > , siendo < str-search > la cadena por la que se quiere buscar, quedando por ejemplo: http://127.0.0.1:8000/v1/cars/brands/?search=for
 
  4. Y combinandolo: http://127.0.0.1:8000/v1/cars/brands/?page=1&search=olks
 
@@ -372,7 +376,7 @@ Autor Miguel Jiménez - www.migueljimenezgarcia.com
 
    1. En `cars/views.py` introducimos:
 
-    class CarRetrieveUpdateDestroyView(generics.RetrieveAPIView):
+    class CarRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         serializer_class = CarSerializer
         permission_classes = ()
         queryset = Car.objects.all()
