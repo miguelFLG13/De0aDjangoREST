@@ -36,3 +36,4 @@ class BrandDestroyView(DestroyAPIView):
     permission_classes = ()
     queryset = Brand.objects.all()
     lookup_field = 'id'
+

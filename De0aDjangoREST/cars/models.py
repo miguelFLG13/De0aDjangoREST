@@ -1,5 +1,3 @@
-import uuid
-
 from django.db import models
 
 
@@ -16,13 +14,6 @@ class Brand(models.Model):
 
 
 class Car(models.Model):
-    """
-    Car definition
-    """
-    uuid = models.UUIDField(
-        default=uuid.uuid4,
-        editable=False
-    )
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     model = models.CharField(max_length=25)
@@ -35,6 +26,5 @@ class Car(models.Model):
 
     class Meta:
         ordering = ['updated']
-        indexes = [
-            models.Index(fields=['brand'])
-        ]
+        indexes = [models.Index(fields=['brand'])]
+
