@@ -2,13 +2,13 @@
 
 Taller para iniciarse en el desarrollo de API REST con Django REST Framework
 
-- Vídeo Parte 1: https://youtu.be/y6rk8-Gna54
-- Vídeo Parte 2: https://youtu.be/3Rup-D9vVLk
+- Vídeo Parte 1: https://youtu.be/1eQjkdJI9e4
+- Vídeo Parte 2: https://youtu.be/B7ehNojsjyk
 
-- Diapositivas Parte 1: https://docs.google.com/presentation/d/1BMlLldDGxuSOZ3WSHzqGhakTpPLD3KzY2ixU25gpeOc/edit?usp=sharing
-- Diapositivas Parte 2: https://docs.google.com/presentation/d/1X_pNijQj0DBbR5lYc-pQlECGSSKEtlm5EM5L_uwOMhw/edit?usp=sharing
+- Diapositivas Parte 1: https://docs.google.com/presentation/d/1BMlLldDGxuSOZ3WSHzqGhakTpPLD3KzY2ixU25gpeOc/
+- Diapositivas Parte 2: https://docs.google.com/presentation/d/1X_pNijQj0DBbR5lYc-pQlECGSSKEtlm5EM5L_uwOMhw/
 
-- Colección de peticiones para importar en Postman: https://drive.google.com/file/d/1SALDsUzpykG9QktJKN8mdYGpteBLJWlW/view?usp=sharing
+- Colección de peticiones para importar en Postman: https://drive.google.com/file/d/1SALDsUzpykG9QktJKN8mdYGpteBLJWlW/
 
 Autor Miguel Jiménez - www.migueljimenezgarcia.com
 
